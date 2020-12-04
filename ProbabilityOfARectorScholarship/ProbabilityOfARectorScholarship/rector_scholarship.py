@@ -1,4 +1,4 @@
-# Autorzy: Patrycja Bednarska i Maciej Dzieciuch
+ # Autorzy: Patrycja Bednarska i Maciej Dzieciuch
 # Uruchamiamy plik rector_scholarship.py
 
 """
@@ -37,7 +37,7 @@ from skfuzzy import control as ctrl
 """
 average_of_ratings = ctrl.Antecedent(np.arange(2, 5.01, 1), 'average of ratings')
 scientific_achievements = ctrl.Antecedent(np.arange(0, 11, 1), 'scientific achievements')
-material_situation = ctrl.Antecedent(np.arange(0, 1201, 1), 'material situation')
+material_situation = ctrl.Antecedent(np.arange(0, 11, 1), 'material situation')
 scholarship = ctrl.Consequent(np.arange(0, 101, 1), 'scholarship')
 
 """
@@ -51,8 +51,8 @@ material_situation.automf(3)
 Definiujemy niestandardowy podział "członkostwa" dla parametru wyjściowego 
 i granice określające prawdopodobieństwo uzyskania stypendium
 """
-scholarship['low'] = fuzz.trimf(scholarship.universe, [0, 0, 25])
-scholarship['medium'] = fuzz.trimf(scholarship.universe, [25, 75, 100])
+scholarship['low'] = fuzz.trimf(scholarship.universe, [0, 24, 25])
+scholarship['medium'] = fuzz.trimf(scholarship.universe, [25, 75, 80])
 scholarship['high'] = fuzz.trimf(scholarship.universe, [76, 100, 100])
 
 """
@@ -78,8 +78,11 @@ otrzymania stypendium rektorskiego.
    
 6. Jeżeli średnia z ocen jest średnia i liczba osiągnięć naukowych jest niska lub dochód na osobę w gospodarstwie 
    domowym jest średnia to szansa na otrzymanie stypendium rektorskiego jest średnia.
-"""
+   
+7. Jeżeli średnia z ocen jest wysoka i liczba osiądnięc naukowych jest wysoka to szansa na otrzymanie 
+   stypendium rektorskiego jest wysoka.   
 
+"""
 rule1 = ctrl.Rule(average_of_ratings['poor'] & scientific_achievements['poor'], scholarship['low'])
 rule2 = ctrl.Rule(average_of_ratings['good'] & scientific_achievements['good'] & material_situation['poor'],
                   scholarship['high'])
@@ -90,14 +93,13 @@ rule6 = ctrl.Rule(average_of_ratings['average'] & scientific_achievements['poor'
                   scholarship['medium'])
 rule7 = ctrl.Rule(average_of_ratings['good'] & scientific_achievements['good'], scholarship['high'])
 
+
 """
 Określamy system kontroli według listy ról które podajemy jako listę w argumencie klasy
 """
 
-# scholarship_ctrl = ctrl.ControlSystem([rule1, rule2, rule4, rule5, rule6, rule7])
-# scholarship_ctrl = ctrl.ControlSystem([rule7])
-scholarship_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6])
-# scholarship_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
+scholarship_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7])
+
 
 """
 Określamy system kontroli symulacji który będzie generował symulację
@@ -108,8 +110,8 @@ scholarship_sim = ctrl.ControlSystemSimulation(scholarship_ctrl)
 """
 Przekazujemy wartości dla parametrów wejściowych z których ma być określone prawdopodobieństwo
 """
-scholarship_sim.input['average of ratings'] = 2
-scholarship_sim.input['scientific achievements'] = 10
+scholarship_sim.input['average of ratings'] = 2.00
+scholarship_sim.input['scientific achievements'] = 2
 scholarship_sim.input['material situation'] = 1
 
 """
